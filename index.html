@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Biodata Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --bg: #F8FAFC;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: #1E293B;
+        }
+
+        /* Form Styling */
+        .section-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748B;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.6rem 0.85rem;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+            background: white;
+            line-height: 1.5;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+        }
+
+        /* Styled File Upload */
+        .file-upload-wrapper {
+            position: relative;
+            width: 100%;
+            min-height: 100px;
+            border: 2px dashed #E2E8F0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #F1F5F9;
+            padding: 1rem;
+        }
+
+        .file-upload-wrapper:hover {
+            border-color: var(--primary);
+            background: #EEF2FF;
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* CV Preview Styling */
+        #biodata-preview {
+            background: white;
+            width: 100%;
+            max-width: 210mm; /* Professional A4 width on desktop */
+            min-height: 297mm;
+            padding: 10mm;
+            margin: 0 auto;
+            font-family: 'Noto Serif', serif;
+            color: black;
+            position: relative;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
+        @media (min-width: 1024px) {
+            #biodata-preview {
+                padding: 20mm;
+            }
+        }
+
+        .cv-title {
+            text-align: center;
+            font-size: 20pt;
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+        @media (min-width: 768px) {
+            .cv-title {
+                font-size: 26pt;
+            }
+        }
+
+        .cv-photo-box {
+            position: static;
+            width: 35mm;
+            height: 45mm;
+            border: 1px solid black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: white;
+            margin: 0 auto 20px auto;
+            z-index: 10;
+        }
+
+        @media (min-width: 768px) {
+            .cv-photo-box {
+                position: absolute;
+                top: 20mm;
+                right: 20mm;
+                margin: 0;
+            }
+        }
+
+        .cv-photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-section-header {
+            font-size: 12pt;
+            font-weight: bold;
+            text-decoration: underline;
+            margin: 20px 0 10px 0;
+            color: #000;
+        }
+
+        @media (min-width: 768px) {
+            .preview-section-header {
+                font-size: 14pt;
+                margin: 25px 0 15px 0;
+            }
+        }
+
+        .cv-row {
+            display: grid;
+            grid-template-columns: 120px 15px 1fr;
+            margin-bottom: 6px;
+            line-height: 1.5;
+            align-items: start;
+            font-size: 10pt;
+        }
+
+        @media (min-width: 768px) {
+            .cv-row {
+                grid-template-columns: 200px 20px 1fr;
+                font-size: 11pt;
+            }
+        }
+
+        .cv-label { font-weight: bold; }
+        .cv-colon { text-align: center; }
+        .cv-value { font-weight: normal; white-space: pre-wrap; word-break: break-word; }
+
+        .cv-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 9pt;
+        }
+
+        @media (min-width: 768px) {
+            .cv-table {
+                font-size: 10pt;
+            }
+        }
+
+        .cv-table th, .cv-table td {
+            border: 1px solid black;
+            padding: 4px;
+            text-align: center;
+        }
+
+        @media (min-width: 768px) {
+            .cv-table th, .cv-table td {
+                padding: 8px;
+            }
+        }
+
+        .cv-table th { background-color: #f2f2f2; font-weight: bold; }
+
+        .loop-item {
+            margin-bottom: 4px;
+            padding-left: 10px;
+            font-size: 10pt;
+        }
+
+        @media print {
+            body { background: white; padding: 0; margin: 0; }
+            .no-print { display: none !important; }
+            .main-container { display: block !important; padding: 0 !important; margin: 0 !important; }
+            .side-panel { width: 100% !important; padding: 0 !important; margin: 0 !important; background: transparent !important; }
+            
+            #biodata-preview {
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                width: 100% !important;
+                border: none !important;
+            }
+
+            .cv-photo-box {
+                position: absolute !important;
+                top: 20mm !important;
+                right: 20mm !important;
+                margin: 0 !important;
+            }
+
+            .preview-section-header {
+                break-after: avoid;
+            }
+
+            @page { 
+                size: A4; 
+                margin: 20mm 15mm 20mm 15mm;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .main-container { flex-direction: column; }
+            .side-panel { width: 100% !important; height: auto !important; max-height: none !important; position: static !important; }
+            #biodata-preview { width: 100%; min-height: auto; font-size: 12px; }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+
+    <div class="max-w-[1500px] mx-auto">
+        <header class="mb-6 flex justify-between items-center no-print">
+            <h1 class="text-2xl font-bold text-slate-900">Biodata Builder</h1>
+            <div class="flex gap-2">
+                <button onclick="clearAllData()" class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2.5 rounded-lg font-bold transition-all flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    Clear Data
+                </button>
+                <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg font-bold shadow-lg transition-all flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                    Print / Save PDF
+                </button>
+            </div>
+        </header>
+
+        <div class="main-container flex gap-6 items-start">
+            <!-- Form Side -->
+            <div class="side-panel w-[480px] shrink-0 no-print overflow-y-auto max-h-[calc(100vh-120px)] sticky top-6 pr-2">
+                <form id="cv-form">
+                    
+                    <div class="section-card">
+                        <label class="text-xs font-bold text-slate-400 uppercase mb-3 block">Profile Photo</label>
+                        <div class="file-upload-wrapper" id="upload-zone">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                            <span class="text-xs font-semibold text-indigo-600">Click to Upload Photo</span>
+                            <span class="text-[10px] text-slate-400 mt-1">PNG, JPG up to 5MB</span>
+                            <input type="file" id="photo-input" accept="image/*">
+                        </div>
+                        <div id="file-name-display" class="mt-2 text-[10px] text-slate-500 text-center hidden"></div>
+                    </div>
+
+                    <!-- 1. Personal Info -->
+                    <div class="section-card">
+                        <h2 class="font-bold border-b pb-2 mb-4 text-indigo-600">Personal Information</h2>
+                        <div class="space-y-4">
+                            <div class="input-group"><label>Full Name</label><input type="text" data-key="name" class="input-field" placeholder="Md. Iqbal Hossain"></div>
+                            <div class="input-group"><label>Father's Name</label><input type="text" data-key="father" class="input-field"></div>
+                            <div class="input-group"><label>Mother's Name</label><input type="text" data-key="mother" class="input-field"></div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="input-group"><label>Date of Birth</label><input type="date" data-key="dob" class="input-field"></div>
+                                <div class="input-group"><label>Sex</label><select data-key="sex" class="input-field"><option value="Male">Male</option><option value="Female">Female</option></select></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="input-group">
+                                    <label>Religion</label>
+                                    <select data-key="religion" class="input-field">
+                                        <option value="Islam">Islam</option>
+                                        <option value="Hinduism">Hinduism</option>
+                                        <option value="Christianity">Christianity</option>
+                                        <option value="Buddhism">Buddhism</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="input-group"><label>Nationality</label><input type="text" data-key="nationality" class="input-field" value="Bangladeshi"></div>
+                            </div>
+                            <div class="input-group">
+                                <label>Marital Status</label>
+                                <select data-key="marital" id="marital-status-select" class="input-field">
+                                    <option value="Single">Single</option>
+                                    <option value="Married">Married</option>
+                                    <option value="Divorced">Divorced</option>
+                                    <option value="Widowed">Widowed</option>
+                                </select>
+                            </div>
+                            <!-- Conditional Divorce Field -->
+                            <div class="input-group hidden" id="divorce-note-group">
+                                <label>Divorce Details / Family Note</label>
+                                <textarea data-key="divorce_note" class="input-field min-h-[100px] resize-y" placeholder="Provide information about family background or details..."></textarea>
+                            </div>
+
+                            <div class="input-group"><label>Contact</label><input type="text" data-key="contact" class="input-field"></div>
+                            <div class="input-group"><label>Present Address</label><textarea data-key="present_addr" class="input-field min-h-[100px] resize-y"></textarea></div>
+                            <div class="input-group"><label>Permanent Address</label><textarea data-key="permanent_addr" class="input-field min-h-[100px] resize-y"></textarea></div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Family Info -->
+                    <div class="section-card">
+                        <h2 class="font-bold border-b pb-2 mb-4 text-indigo-600">Family Information</h2>
+                        <div class="space-y-4 mb-6">
+                            <div class="input-group">
+                                <label>Father's Occupation</label>
+                                <div class="flex gap-2">
+                                    <input type="text" data-key="f_occ" class="input-field w-1/2" placeholder="Occupation">
+                                    <input type="text" data-key="f_occ_note" class="input-field w-1/2" placeholder="Note">
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Mother's Occupation</label>
+                                <div class="flex gap-2">
+                                    <input type="text" data-key="m_occ" class="input-field w-1/2" placeholder="Occupation">
+                                    <input type="text" data-key="m_occ_note" class="input-field w-1/2" placeholder="Note">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="text-xs font-bold text-slate-500 uppercase">Siblings</label>
+                                <button type="button" onclick="addLoopRow('siblings-form-list', 'Sibling')" class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-1 rounded font-bold transition-colors hover:bg-indigo-100">+ ADD</button>
+                            </div>
+                            <div id="siblings-form-list" class="space-y-2"></div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="text-xs font-bold text-slate-500 uppercase">Aunts / Uncles</label>
+                                <button type="button" onclick="addLoopRow('relatives-form-list', 'Relative')" class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-1 rounded font-bold transition-colors hover:bg-indigo-100">+ ADD</button>
+                            </div>
+                            <div id="relatives-form-list" class="space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Education -->
+                    <div class="section-card">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="font-bold text-indigo-600">Educational Information</h2>
+                            <button type="button" onclick="addEduRow()" class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded font-bold transition-colors hover:bg-indigo-100">+ ADD EXAM</button>
+                        </div>
+                        <div id="edu-form-list" class="space-y-3"></div>
+                    </div>
+
+                    <!-- 4. Occupation -->
+                    <div class="section-card">
+                        <h2 class="font-bold border-b pb-2 mb-4 text-indigo-600">Occupation</h2>
+                        <div class="space-y-4">
+                            <div class="input-group"><label>Designation</label><input type="text" data-key="occ_designation" class="input-field"></div>
+                            <div class="input-group"><label>Company Name</label><input type="text" data-key="occ_company" class="input-field"></div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Fields -->
+                    <div class="section-card">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="font-bold text-indigo-600">Custom Fields</h2>
+                            <button type="button" onclick="addCustomField()" class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded font-bold transition-colors hover:bg-indigo-100">+ ADD FIELD</button>
+                        </div>
+                        <div id="custom-fields-list" class="space-y-3"></div>
+                    </div>
+
+                    <!-- About -->
+                    <div class="section-card">
+                        <h2 class="font-bold border-b pb-2 mb-4 text-indigo-600">Description</h2>
+                        <textarea data-key="description" class="input-field min-h-[150px] resize-y" placeholder="Something about yourself..."></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Preview Side -->
+            <div class="side-panel flex-1 bg-slate-200 overflow-auto p-2 md:p-10">
+                <div id="biodata-preview" class="shadow-2xl">
+                    <div class="cv-photo-box" id="pv-photo"></div>
+                    <div class="cv-title">Biodata</div>
+
+                    <!-- PERSONAL SECTION -->
+                    <div id="sec-personal">
+                        <div class="preview-section-header">Personal Information</div>
+                        <div id="pv-personal-rows"></div>
+                    </div>
+
+                    <!-- FAMILY SECTION -->
+                    <div id="sec-family">
+                        <div class="preview-section-header">Family Information</div>
+                        <div id="pv-family-rows"></div>
+                        <div id="pv-siblings-area" class="mt-2"></div>
+                        <div id="pv-relatives-area" class="mt-2"></div>
+                    </div>
+
+                    <!-- EDUCATION SECTION -->
+                    <div id="sec-education">
+                        <div class="preview-section-header">Educational Information</div>
+                        <div class="overflow-x-auto">
+                            <table class="cv-table">
+                                <thead id="edu-thead"></thead>
+                                <tbody id="edu-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- OCCUPATION SECTION -->
+                    <div id="sec-occupation">
+                        <div class="preview-section-header">Occupation</div>
+                        <div id="pv-occupation-rows"></div>
+                    </div>
+
+                    <!-- FOOTER -->
+                    <div id="pv-description-area" class="mt-8 italic text-sm border-t pt-4" style="display:none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const personalKeys = ['name', 'father', 'mother', 'dob', 'sex', 'nationality', 'religion', 'marital', 'divorce_note', 'contact', 'present_addr', 'permanent_addr'];
+        const occupationKeys = ['occ_designation', 'occ_company'];
+
+        const labels = {
+            name: 'Name', father: "Father's Name", mother: "Mother's Name", dob: 'Date of Birth', sex: 'Sex',
+            nationality: 'Nationality', religion: 'Religion', marital: 'Marital Status', divorce_note: 'Status Note', contact: 'Contact Number',
+            present_addr: 'Present Address', permanent_addr: 'Permanent Address',
+            f_occ: "Father's Occupation", m_occ: "Mother's Occupation",
+            occ_designation: 'Designation', occ_company: 'Company Name'
+        };
+
+        const STORAGE_KEY = 'biodata_pro_data_v1';
+
+        function addLoopRow(containerId, placeholder, savedData = null) {
+            const div = document.createElement('div');
+            div.className = 'grid grid-cols-2 gap-2 bg-slate-50 p-2 rounded border relative group';
+            div.innerHTML = `
+                <button type="button" onclick="this.parentElement.remove(); updatePreview()" class="absolute -top-1 -right-1 bg-red-500 text-white w-4 h-4 rounded-full text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">×</button>
+                <input type="text" placeholder="${placeholder} Name" class="input-field text-xs loop-name" value="${savedData ? savedData.name : ''}">
+                <input type="text" placeholder="Note (e.g. Student)" class="input-field text-xs loop-note" value="${savedData ? savedData.note : ''}">
+            `;
+            document.getElementById(containerId).appendChild(div);
+            div.querySelectorAll('input').forEach(i => i.addEventListener('input', updatePreview));
+            return div;
+        }
+
+        function addEduRow(savedData = null) {
+            const div = document.createElement('div');
+            div.className = 'bg-slate-50 p-3 rounded-lg border relative group';
+            div.innerHTML = `
+                <button type="button" onclick="this.parentElement.remove(); updatePreview()" class="absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">×</button>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" placeholder="Exam" class="input-field edu-exam" value="${savedData ? savedData.exam : ''}">
+                    <input type="text" placeholder="Group" class="input-field edu-group" value="${savedData ? savedData.group : ''}">
+                    <input type="text" placeholder="Board" class="input-field edu-board" value="${savedData ? savedData.board : ''}">
+                    <input type="text" placeholder="Year" class="input-field edu-year" value="${savedData ? savedData.year : ''}">
+                    <input type="text" placeholder="Result" class="input-field edu-result col-span-2" value="${savedData ? savedData.result : ''}">
+                </div>
+            `;
+            document.getElementById('edu-form-list').appendChild(div);
+            div.querySelectorAll('input').forEach(i => i.addEventListener('input', updatePreview));
+            return div;
+        }
+
+        function addCustomField(savedData = null) {
+            const div = document.createElement('div');
+            div.className = 'bg-slate-50 p-3 rounded border space-y-2';
+            div.innerHTML = `
+                <div class="flex gap-2">
+                    <input type="text" placeholder="Label" class="input-field w-1/2 cf-label" value="${savedData ? savedData.label : ''}">
+                    <select class="input-field w-1/2 cf-section">
+                        <option value="personal" ${savedData?.section === 'personal' ? 'selected' : ''}>Personal Info</option>
+                        <option value="family" ${savedData?.section === 'family' ? 'selected' : ''}>Family Info</option>
+                        <option value="occupation" ${savedData?.section === 'occupation' ? 'selected' : ''}>Occupation</option>
+                    </select>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" placeholder="Value" class="input-field flex-1 cf-value" value="${savedData ? savedData.value : ''}">
+                    <button type="button" onclick="this.parentElement.parentElement.remove(); updatePreview()" class="text-red-500 font-bold px-2">×</button>
+                </div>
+            `;
+            document.getElementById('custom-fields-list').appendChild(div);
+            div.querySelectorAll('input, select').forEach(i => i.addEventListener('input', updatePreview));
+            return div;
+        }
+
+        function saveToLocalStorage() {
+            const data = {
+                standard: {},
+                education: [],
+                siblings: [],
+                relatives: [],
+                customFields: [],
+                photo: null
+            };
+
+            // Standard fields
+            document.querySelectorAll('[data-key]').forEach(el => {
+                data.standard[el.dataset.key] = el.value;
+            });
+
+            // Education
+            document.querySelectorAll('#edu-form-list > div').forEach(row => {
+                data.education.push({
+                    exam: row.querySelector('.edu-exam').value,
+                    group: row.querySelector('.edu-group').value,
+                    board: row.querySelector('.edu-board').value,
+                    year: row.querySelector('.edu-year').value,
+                    result: row.querySelector('.edu-result').value
+                });
+            });
+
+            // Siblings
+            document.querySelectorAll('#siblings-form-list > div').forEach(row => {
+                data.siblings.push({
+                    name: row.querySelector('.loop-name').value,
+                    note: row.querySelector('.loop-note').value
+                });
+            });
+
+            // Relatives
+            document.querySelectorAll('#relatives-form-list > div').forEach(row => {
+                data.relatives.push({
+                    name: row.querySelector('.loop-name').value,
+                    note: row.querySelector('.loop-note').value
+                });
+            });
+
+            // Custom Fields
+            document.querySelectorAll('#custom-fields-list > div').forEach(row => {
+                data.customFields.push({
+                    label: row.querySelector('.cf-label').value,
+                    section: row.querySelector('.cf-section').value,
+                    value: row.querySelector('.cf-value').value
+                });
+            });
+
+            // Photo
+            const photoImg = document.getElementById('pv-photo').querySelector('img');
+            if (photoImg) {
+                data.photo = photoImg.src;
+            }
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function loadFromLocalStorage() {
+            const rawData = localStorage.getItem(STORAGE_KEY);
+            if (!rawData) return;
+
+            try {
+                const data = JSON.parse(rawData);
+
+                // Standard fields
+                document.querySelectorAll('[data-key]').forEach(el => {
+                    if (data.standard[el.dataset.key] !== undefined) {
+                        el.value = data.standard[el.dataset.key];
+                    }
+                });
+
+                // Clear and rebuild Education
+                document.getElementById('edu-form-list').innerHTML = '';
+                data.education.forEach(item => addEduRow(item));
+
+                // Clear and rebuild Siblings
+                document.getElementById('siblings-form-list').innerHTML = '';
+                data.siblings.forEach(item => addLoopRow('siblings-form-list', 'Sibling', item));
+
+                // Clear and rebuild Relatives
+                document.getElementById('relatives-form-list').innerHTML = '';
+                data.relatives.forEach(item => addLoopRow('relatives-form-list', 'Relative', item));
+
+                // Clear and rebuild Custom Fields
+                document.getElementById('custom-fields-list').innerHTML = '';
+                data.customFields.forEach(item => addCustomField(item));
+
+                // Restore Photo
+                if (data.photo) {
+                    document.getElementById('pv-photo').innerHTML = `<img src="${data.photo}">`;
+                }
+
+                updatePreview();
+            } catch (e) {
+                console.error("Failed to load biodata from local storage", e);
+            }
+        }
+
+        function clearAllData() {
+            if (confirm("Are you sure you want to clear all data? This cannot be undone.")) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        }
+
+        function updatePreview() {
+            const data = {};
+            document.querySelectorAll('[data-key]').forEach(el => data[el.dataset.key] = el.value);
+
+            // Handle Divorce Note Visibility
+            const maritalSelect = document.getElementById('marital-status-select');
+            const divorceGroup = document.getElementById('divorce-note-group');
+            if (maritalSelect.value === 'Divorced') {
+                divorceGroup.classList.remove('hidden');
+            } else {
+                divorceGroup.classList.add('hidden');
+                data.divorce_note = ""; 
+            }
+
+            // Handle Photo Placeholder Visibility (Hide completely if no img source)
+            const photoBox = document.getElementById('pv-photo');
+            const photoImg = photoBox.querySelector('img');
+            if (!photoImg || !photoImg.getAttribute('src')) {
+                photoBox.style.display = 'none';
+            } else {
+                photoBox.style.display = 'flex';
+            }
+
+            // Group custom fields
+            const customFields = { personal: [], family: [], occupation: [] };
+            document.querySelectorAll('#custom-fields-list > div').forEach(row => {
+                const label = row.querySelector('.cf-label').value;
+                const section = row.querySelector('.cf-section').value;
+                const value = row.querySelector('.cf-value').value;
+                if (label && value) customFields[section].push({ label, value });
+            });
+
+            // Personal Section
+            renderBasicSection('pv-personal-rows', personalKeys, data, customFields.personal);
+
+            // Family Section
+            const familyContainer = document.getElementById('pv-family-rows');
+            familyContainer.innerHTML = '';
+            if(data.f_occ) familyContainer.appendChild(createRow(labels.f_occ, data.f_occ + (data.f_occ_note ? ` (${data.f_occ_note})` : '')));
+            if(data.m_occ) familyContainer.appendChild(createRow(labels.m_occ, data.m_occ + (data.m_occ_note ? ` (${data.m_occ_note})` : '')));
+            customFields.family.forEach(cf => familyContainer.appendChild(createRow(cf.label, cf.value)));
+
+            // Occupation Section
+            const occContainer = document.getElementById('pv-occupation-rows');
+            occContainer.innerHTML = '';
+            let hasOccupationData = false;
+            occupationKeys.forEach(key => {
+                if (data[key]) {
+                    hasOccupationData = true;
+                    occContainer.appendChild(createRow(labels[key], data[key]));
+                }
+            });
+            customFields.occupation.forEach(cf => {
+                hasOccupationData = true;
+                occContainer.appendChild(createRow(cf.label, cf.value));
+            });
+            document.getElementById('sec-occupation').style.display = hasOccupationData ? 'block' : 'none';
+
+            // Loops
+            renderLoop('pv-siblings-area', 'siblings-form-list', 'Siblings Information');
+            renderLoop('pv-relatives-area', 'relatives-form-list', 'Aunts / Uncles Information');
+
+            // Education
+            renderEducationTable();
+
+            // Description
+            const descArea = document.getElementById('pv-description-area');
+            if (data.description) {
+                descArea.style.display = 'block';
+                descArea.textContent = data.description;
+            } else {
+                descArea.style.display = 'none';
+            }
+
+            // Save state
+            saveToLocalStorage();
+        }
+
+        function renderBasicSection(containerId, keys, data, customs) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            keys.forEach(key => {
+                if (data[key]) container.appendChild(createRow(labels[key], data[key]));
+            });
+            customs.forEach(cf => container.appendChild(createRow(cf.label, cf.value)));
+        }
+
+        function createRow(label, value) {
+            const div = document.createElement('div');
+            div.className = 'cv-row';
+            div.innerHTML = `<div class="cv-label">${label}</div><div class="cv-colon">:</div><div class="cv-value">${value}</div>`;
+            return div;
+        }
+
+        function renderLoop(targetId, sourceId, title) {
+            const target = document.getElementById(targetId);
+            const items = document.querySelectorAll(`#${sourceId} > div`);
+            target.innerHTML = '';
+            if (items.length > 0) {
+                const label = document.createElement('div');
+                label.className = 'font-bold mt-2 text-sm';
+                label.textContent = title + ':';
+                target.appendChild(label);
+                items.forEach(item => {
+                    const name = item.querySelector('.loop-name').value;
+                    const note = item.querySelector('.loop-note').value;
+                    if (name) {
+                        const div = document.createElement('div');
+                        div.className = 'loop-item text-sm ml-4';
+                        div.innerHTML = `• ${name} ${note ? `(${note})` : ''}`;
+                        target.appendChild(div);
+                    }
+                });
+            }
+        }
+
+        function renderEducationTable() {
+            const rows = document.querySelectorAll('#edu-form-list > div');
+            const tbody = document.getElementById('edu-tbody');
+            const thead = document.getElementById('edu-thead');
+            tbody.innerHTML = '';
+            let anyResult = false;
+            const tableData = [];
+            rows.forEach(row => {
+                const exam = row.querySelector('.edu-exam').value;
+                const group = row.querySelector('.edu-group').value;
+                const board = row.querySelector('.edu-board').value;
+                const year = row.querySelector('.edu-year').value;
+                const result = row.querySelector('.edu-result').value;
+                if (exam || board) {
+                    if (result) anyResult = true;
+                    tableData.push({ exam, group, board, year, result });
+                }
+            });
+            if (tableData.length > 0) {
+                thead.innerHTML = `<tr><th>Exam</th><th>Group</th><th>Board</th><th>Year</th>${anyResult ? '<th>Result</th>' : ''}</tr>`;
+                tableData.forEach(d => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${d.exam}</td><td>${d.group}</td><td>${d.board}</td><td>${d.year}</td>${anyResult ? `<td>${d.result}</td>` : ''}`;
+                    tbody.appendChild(tr);
+                });
+                document.getElementById('sec-education').style.display = 'block';
+            } else {
+                document.getElementById('sec-education').style.display = 'none';
+            }
+        }
+
+        const photoInput = document.getElementById('photo-input');
+        const fileNameDisplay = document.getElementById('file-name-display');
+
+        photoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                fileNameDisplay.textContent = `Selected: ${file.name}`;
+                fileNameDisplay.classList.remove('hidden');
+                
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    document.getElementById('pv-photo').innerHTML = `<img src="${ev.target.result}">`;
+                    updatePreview();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.querySelectorAll('input, textarea, select').forEach(el => el.addEventListener('input', updatePreview));
+        
+        window.onload = () => { 
+            loadFromLocalStorage(); 
+        };
+    </script>
+</body>
+</html>
